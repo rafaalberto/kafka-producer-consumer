@@ -1,5 +1,5 @@
 # Kafka Producer And Consumer
-This app were built to learn about Kafka concepts. <br/>
+This App were built to learn about Kafka concepts. <br/>
 There are the following projects: <br/>
 - 1 Kafka Producer (built in Spring Boot)
 - 2 Kafka Consumers (build in Spring Boot and NodeJS)
