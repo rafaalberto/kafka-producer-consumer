@@ -1,5 +1,6 @@
-package br.com.kafka.producer.resource;
+package br.com.kafka.producer.resource.kafka;
 
+import br.com.kafka.producer.exception.AppException;
 import br.com.kafka.producer.model.User;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,21 +24,26 @@ public class KafkaResource {
     private KafkaTemplate<String, User> kafkaTemplate;
 
     @GetMapping("/publish")
-    public String post() {
-        kafkaTemplate.send(KAFKA_TOPIC, new User("Rafael", "Development", 5000L));
-        return "Published successfully";
+    public String post() throws AppException {
+        try {
+            kafkaTemplate.send(KAFKA_TOPIC, User.builder().name("Teste").build()).get();
+            return "Published successfully";
+        } catch (Exception e) {
+            throw new AppException("kafka", e.getMessage());
+        } finally {
+            kafkaTemplate.flush();
+        }
     }
 
     @GetMapping("/avro/generate")
-    public ResponseEntity generate() {
+    public ResponseEntity generate() throws AppException {
         ObjectMapper objectMapper = new ObjectMapper(new AvroFactory());
         AvroSchemaGenerator avroSchemaGenerator = new AvroSchemaGenerator();
         try {
             objectMapper.acceptJsonFormatVisitor(User.class, avroSchemaGenerator);
             return new ResponseEntity<>(avroSchemaGenerator.getAvroSchema().toString(), HttpStatus.OK);
         } catch (JsonMappingException e) {
-            e.printStackTrace();
+            throw new AppException("json", e.getMessage());
         }
-        return null;
     }
 }
